@@ -1,39 +1,9 @@
-"""
-Lead Scoring & Prioritization Tool (Enhanced) - Robust Version
-
-This file is a drop-in replacement that handles two runtime modes:
-
-1. **Streamlit UI mode** — if `streamlit` is installed, the interactive dashboard will run exactly like before.
-2. **Console / Test mode** — if `streamlit` is NOT available (common in sandboxed environments), the script will run a deterministic console demo, save outputs (CSV + HTML plots) to `/mnt/data/`, and run unit tests.
-
-Why this change?
-- In some environments `streamlit` may not be installed (ModuleNotFoundError). This version provides a safe fallback so you can still run and validate the core logic without Streamlit.
-
-How to use:
-- To run the Streamlit app (locally):
-    1. Install dependencies: `pip install streamlit pandas numpy plotly`
-    2. Run: `streamlit run lead_scoring_tool.py`
-
-- To run in console mode (no Streamlit required):
-    ```bash
-    python lead_scoring_tool.py
-    # optional: python lead_scoring_tool.py --test  to also run unit tests
-    ```
-
-Outputs (console mode):
-- `/mnt/data/leads_console_output.csv` — filtered leads CSV
-- `/mnt/data/leads_summary.html` — interactive HTML file with two plots (score histogram + category pie)
-
-Author: For Caprae Capital Assignment (enhanced for sandbox compatibility)
-"""
-
 import sys
 import os
 import random
 import argparse
 from datetime import datetime, timedelta
 
-# Try to import streamlit. If not available, we'll fall back to console mode.
 try:
     import streamlit as st
     STREAMLIT_AVAILABLE = True
@@ -250,7 +220,7 @@ class LeadScoringTests(unittest.TestCase):
         self.assertEqual(score, 85)
 
 # -----------------------------
-# Streamlit app (if available)
+# Streamlit app 
 # -----------------------------
 
 def run_streamlit_app():
