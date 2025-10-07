@@ -2,7 +2,7 @@
 
 ## 🎯 **The Problem We Solve**
 
-[cite_start]The challenge with lead generation tools is that they often deliver a high *volume* of data without a clear way to determine which leads are worth a sales team's time[cite: 69]. [cite_start]Our primary goal is to turn raw data into **actionable intelligence**[cite: 71].
+The challenge with lead generation tools is that they often deliver a high *volume* of data without a clear way to determine which leads are worth a sales team's time. Our primary goal is to turn raw data into **actionable intelligence.**
 
 This tool is a high-impact enhancement for any lead generation platform, allowing sales teams to **focus exclusively on high-potential targets** that align with Caprae Capital’s investment strategy.
 
@@ -20,7 +20,7 @@ This score determines the overall quality and potential of a lead based on crite
 This metric assesses the reliability and completeness of the contact information.
 
 * **Focus on Completeness:** It measures the presence of key contact points (Email, Phone, LinkedIn URL).
-* [cite_start]**Result:** Reduces wasted time by ensuring the team only contacts leads with verifiable and complete data, acting as a built-in data quality and validation feature (bonus point feature)[cite: 81].
+* **Result:** Reduces wasted time by ensuring the team only contacts leads with verifiable and complete data, acting as a built-in data quality and validation feature (bonus point feature).
 
 ---
 
