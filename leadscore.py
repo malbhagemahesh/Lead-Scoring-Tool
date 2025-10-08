@@ -183,49 +183,49 @@ def calculate_confidence(row):
     return min(100, int(c))
 
 # -----------------------------
-# Streamlit app
+# Streamlit app with filters
 # -----------------------------
 
 def run_streamlit_app():
-    st.set_page_config(
-        page_title="Lead Scoring Tool", 
-        page_icon="🎯", 
-        layout="wide", 
-        initial_sidebar_state="expanded"  # ensures sidebar is always visible by default
-    )
-
+    st.set_page_config(page_title="Lead Scoring Tool", page_icon="🎯", layout="wide", initial_sidebar_state="expanded")
     st.title("🎯 Lead Scoring & Prioritization Tool")
     st.markdown("A multi-factor lead scoring system with data validation, confidence indicators, and customizable thresholds.")
 
-    # --- SIDEBAR DEFINITION (Filter Bar) ---
-    # Using 'with st.sidebar:' context guarantees correct placement and display
-    with st.sidebar:
-        st.header("⚖️ Adjust Scoring Weights")
-        weights = {
-            'company_size': st.slider("Company Size Weight", 0.0, 2.0, 1.0, 0.1),
-            'revenue': st.slider("Revenue Weight", 0.0, 2.0, 1.0, 0.1),
-            'data': st.slider("Data Completeness Weight", 0.0, 2.0, 1.0, 0.1),
-            'engagement': st.slider("Engagement Readiness Weight", 0.0, 2.0, 1.0, 0.1),
-            'title': st.slider("Title Relevance Weight", 0.0, 2.0, 1.0, 0.1)
-        }
+    # Sidebar: scoring weights
+    st.sidebar.header("⚖️ Adjust Scoring Weights")
+    weights = {
+        'company_size': st.sidebar.slider("Company Size Weight", 0.0, 2.0, 1.0, 0.1),
+        'revenue': st.sidebar.slider("Revenue Weight", 0.0, 2.0, 1.0, 0.1),
+        'data': st.sidebar.slider("Data Completeness Weight", 0.0, 2.0, 1.0, 0.1),
+        'engagement': st.sidebar.slider("Engagement Readiness Weight", 0.0, 2.0, 1.0, 0.1),
+        'title': st.sidebar.slider("Title Relevance Weight", 0.0, 2.0, 1.0, 0.1)
+    }
 
-        st.header("🏢 Company Size Thresholds")
-        size_large = st.number_input("Large Company (employees ≥)", min_value=100, max_value=10000, value=1000, step=100)
-        size_medium = st.number_input("Medium Company (employees ≥)", min_value=50, max_value=5000, value=500, step=50)
-        size_small = st.number_input("Small Company (employees ≥)", min_value=10, max_value=1000, value=100, step=10)
-        size_thresholds = {'large': size_large, 'medium': size_medium, 'small': size_small}
+    # Company size thresholds
+    st.sidebar.header("🏢 Company Size Thresholds")
+    size_large = st.sidebar.number_input("Large Company (employees ≥)", min_value=100, max_value=10000, value=1000, step=100)
+    size_medium = st.sidebar.number_input("Medium Company (employees ≥)", min_value=50, max_value=5000, value=500, step=50)
+    size_small = st.sidebar.number_input("Small Company (employees ≥)", min_value=10, max_value=1000, value=100, step=10)
+    size_thresholds = {'large': size_large, 'medium': size_medium, 'small': size_small}
 
-        st.header("💰 Revenue Thresholds (in millions)")
-        rev_high = st.number_input("High Revenue ($M ≥)", min_value=1.0, max_value=500.0, value=50.0, step=5.0)
-        rev_medium = st.number_input("Medium Revenue ($M ≥)", min_value=1.0, max_value=100.0, value=20.0, step=1.0)
-        rev_low = st.number_input("Low Revenue ($M ≥)", min_value=0.5, max_value=50.0, value=5.0, step=0.5)
-        revenue_thresholds = {'high': rev_high, 'medium': rev_medium, 'low': rev_low}
-    # --- END SIDEBAR DEFINITION ---
+    # Revenue thresholds
+    st.sidebar.header("💰 Revenue Thresholds (in millions)")
+    rev_high = st.sidebar.number_input("High Revenue ($ millions ≥)", min_value=1.0, max_value=500.0, value=50.0, step=5.0)
+    rev_medium = st.sidebar.number_input("Medium Revenue ($ millions ≥)", min_value=1.0, max_value=100.0, value=20.0, step=1.0)
+    rev_low = st.sidebar.number_input("Low Revenue ($ millions ≥)", min_value=0.5, max_value=50.0, value=5.0, step=0.5)
+    revenue_thresholds = {'high': rev_high, 'medium': rev_medium, 'low': rev_low}
 
+    # Filters
+    st.sidebar.header("🔎 Filters")
     if 'df' not in st.session_state:
         st.session_state.df = generate_sample_leads(50)
 
     df = st.session_state.df.copy()
+    locations = df['location'].unique().tolist()
+    categories = ['Hot', 'Warm', 'Cold']
+
+    selected_locations = st.sidebar.multiselect("Select Location(s)", options=locations, default=locations)
+    selected_categories = st.sidebar.multiselect("Select Category", options=categories, default=categories)
 
     # Calculate scores
     results = df.apply(lambda row: calculate_lead_score(row, weights, rng=None,
@@ -234,30 +234,30 @@ def run_streamlit_app():
     df['lead_score'] = results.apply(lambda x: x[0])
     df['factors'] = results.apply(lambda x: x[1])
     df['confidence'] = df.apply(calculate_confidence, axis=1)
-    # Sort by score for display
-    df = df.sort_values(by='lead_score', ascending=False).reset_index(drop=True)
     df['category'] = df['lead_score'].apply(lambda s: 'Hot' if s >= 70 else 'Warm' if s >= 40 else 'Cold')
     df['email_valid'] = df['email'].apply(lambda x: '✅' if validate_email(x) else '❌')
     df['phone_valid'] = df['phone'].apply(lambda x: '✅' if validate_phone(x) else '❌')
 
-    # --- Hot / Warm / Cold summary ---
-    hot_count = len(df[df['category'] == 'Hot'])
-    warm_count = len(df[df['category'] == 'Warm'])
-    cold_count = len(df[df['category'] == 'Cold'])
-    st.markdown(f"**Lead Summary:** 🔥 Hot: {hot_count} | 🌤 Warm: {warm_count} | ❄ Cold: {cold_count}")
+    # Apply filters
+    filtered_df = df[(df['location'].isin(selected_locations)) & (df['category'].isin(selected_categories))]
 
-    # Lead Table
+    # Lead summary
+    hot_count = (filtered_df['category'] == 'Hot').sum()
+    warm_count = (filtered_df['category'] == 'Warm').sum()
+    cold_count = (filtered_df['category'] == 'Cold').sum()
+
+    st.markdown(f"### Lead Summary: 🔥 **Hot:** {hot_count} | ⚡ **Warm:** {warm_count} | ❄️ **Cold:** {cold_count}")
+
+    # Lead table
     st.subheader("📋 Leads Table (Top 20)")
-    display_df = df[['company_name', 'contact_name', 'title', 'email_valid', 'phone_valid',
-                     'lead_score', 'confidence', 'category', 'location']].head(20)
+    display_df = filtered_df[['company_name', 'contact_name', 'title', 'email_valid', 'phone_valid',
+                              'lead_score', 'confidence', 'category', 'location']].head(20)
     st.dataframe(display_df, use_container_width=True)
 
-    # Lead Expanders
+    # Expanders for details
     st.subheader("🔍 Lead Details (Top 10)")
-    for _, row in df.head(10).iterrows():
-        # Display score and location in the expander title
-        expander_title = f"{row['category']} | {row['company_name']} - {row['lead_score']} pts ({row['location']})"
-        with st.expander(expander_title):
+    for _, row in filtered_df.head(10).iterrows():
+        with st.expander(f"{row['category']} | {row['company_name']} - {row['lead_score']} pts ({row['location']})"):
             col1, col2 = st.columns([2, 1])
 
             with col1:
@@ -279,12 +279,13 @@ def run_streamlit_app():
                     st.write(f"• {factor_name}: +{factor_pts:.1f} pts")
 
 # -----------------------------
-# Console Mode (fallback)
+# Console Mode
 # -----------------------------
 
 def run_console_demo(n=50, seed=42, weights=None, out_dir='/mnt/data', size_thresholds=None, revenue_thresholds=None):
     print("Streamlit not available — running console demo.")
     df = generate_sample_leads(n=n, seed=seed)
+
     if weights is None:
         weights = {'company_size': 1.0, 'revenue': 1.0, 'data': 1.0, 'engagement': 1.0, 'title': 1.0}
 
@@ -293,17 +294,23 @@ def run_console_demo(n=50, seed=42, weights=None, out_dir='/mnt/data', size_thre
     df['lead_score'] = results.apply(lambda x: x[0])
     df['factors'] = results.apply(lambda x: x[1])
     df['confidence'] = df.apply(calculate_confidence, axis=1)
-    df = df.sort_values(by='lead_score', ascending=False).reset_index(drop=True)
     df['category'] = df['lead_score'].apply(lambda s: 'Hot' if s >= 70 else 'Warm' if s >= 40 else 'Cold')
+
     df['email_valid'] = df['email'].apply(lambda x: '✅' if validate_email(x) else '❌')
     df['phone_valid'] = df['phone'].apply(lambda x: '✅' if validate_phone(x) else '❌')
 
-    print(f"\nLead Summary: Hot: {len(df[df['category']=='Hot'])}, Warm: {len(df[df['category']=='Warm'])}, Cold: {len(df[df['category']=='Cold'])}")
+    print(f"\nGenerated {len(df)} leads. Hot: {len(df[df['category']=='Hot'])}, Warm: {len(df[df['category']=='Warm'])}, Cold: {len(df[df['category']=='Cold'])}")
     print("\nTop 10 leads:")
-    print(df[['company_name', 'contact_name', 'title', 'email_valid', 'phone_valid', 'lead_score', 'confidence', 'category', 'location']].head(10).to_string())
+    print(df[['company_name', 'contact_name', 'title', 'email_valid', 'phone_valid', 'lead_score', 'confidence', 'category', 'location']]
+          .sort_values('lead_score', ascending=False).head(10).to_string(index=False))
 
 # -----------------------------
-# Entry point
+# Unit Tests
+# -----------------------------
+# Keep your existing tests (unchanged)...
+
+# -----------------------------
+# Entrypoint
 # -----------------------------
 
 def main():
@@ -312,12 +319,15 @@ def main():
     args = parser.parse_args()
 
     if args.test:
-        # Placeholder for unit tests
-        suite = unittest.defaultTestLoader.loadTestsFromTestCase(unittest.TestCase)
+        print('Running unit tests...')
+        suite = unittest.defaultTestLoader.loadTestsFromTestCase(LeadScoringTests)
         runner = unittest.TextTestRunner(verbosity=2)
         result = runner.run(suite)
         if not result.wasSuccessful():
+            print('Some tests failed.')
             sys.exit(1)
+        else:
+            print('All tests passed.')
         return
 
     if STREAMLIT_AVAILABLE:
