@@ -24,23 +24,23 @@ This metric assesses the reliability and completeness of the contact information
 
 ---
 
-## 💻 **How to Use the Tool (Quick Start)**
+## 💻 **How to Use the Tool**
 
 This tool is designed to be robust and easy to deploy in any environment.
 
-### **Option 1: Interactive Dashboard (Recommended for Sales Leaders)**
+### **Option 1: Interactive Dashboard**
 For real-time control and visualization, the tool runs as an interactive web application, allowing immediate adjustment of scoring weights.
 
 1.  **Prerequisites:** Python and necessary libraries (listed below).
 2.  **Run:** `streamlit run leadscore.py`
 
-### **Option 2: Console Mode (For Testing and Automated Systems)**
+### **Option 2: Console Mode**
 If a web interface isn't needed, the core logic runs independently, providing a simple, text-based output and saving results.
 
 * **Output:** Generates a prioritized `.csv` file of leads and a summary HTML file with charts (saved to `/mnt/data/`).
 * **Run:** `python leadscore.py`
 
-### **Setup (For IT/Development Teams)**
+### **Setup**
 The tool requires standard Python libraries:
 
 ```bash
