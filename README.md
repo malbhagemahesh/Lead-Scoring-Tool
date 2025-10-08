@@ -1,5 +1,4 @@
-# Lead Scoring & Prioritization Tool (Caprae Capital Pre-Work)
-
+# Lead Scoring & Prioritization Tool 
 ## 🎯 **The Problem We Solve**
 
 The challenge with lead generation tools is that they often deliver a high *volume* of data without a clear way to determine which leads are worth a sales team's time. Our primary goal is to turn raw data into **actionable intelligence.**
