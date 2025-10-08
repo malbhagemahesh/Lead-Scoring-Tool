@@ -4,8 +4,10 @@ import random
 import argparse
 from datetime import datetime, timedelta
 
+
 try:
     import streamlit as st
+
     STREAMLIT_AVAILABLE = True
 except Exception:
     STREAMLIT_AVAILABLE = False
@@ -15,6 +17,21 @@ import numpy as np
 import plotly.graph_objects as go
 import unittest
 
+
+
+
+
+# Hide Streamlit Deploy and extra UI
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden !important;}
+    [data-testid="stDeployButton"] {display: none !important;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # -----------------------------
 # Data generation
 # -----------------------------
